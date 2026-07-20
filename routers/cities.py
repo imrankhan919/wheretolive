@@ -2,12 +2,16 @@ from fastapi import APIRouter , Depends , HTTPException
 from sqlmodel import Session, select 
 from database import get_session
 from models.city import City , CityMetric 
+from seed.seed_runner import run_seed
 
 router = APIRouter(prefix="/cities" , tags=["Cities"])
 
 @router.get("/")
 def list(session : Session = Depends(get_session)) :
-    return session.exec(select(City)).all()
+    cities = session.exec(select(City)).all()
+    if len(cities) == 0 :
+        run_seed()
+    return cities
 
 @router.post("/")
 def add_city() :
